@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd"> 
+
+<mapper namespace="com.ssafy.happyhouse.dao.HouseDao">
+
+	<select id="boardList" parameterType="Map" resultType="HouseDeal">
+		SELECT dong.dong_name as dong, name as aptName, deal.code as code, dealAmount, buildYear, dealYear, dealMonth, dealDay, area, floor, apart.jibun as jibun, type
+		FROM deal, apart, dong, deal_detail
+		WHERE deal.apart_code = apart.code AND dong.dong_code = apart.dong_code and deal.code = deal_detail.code
+		and deal_detail.dealAmount Between #{minAmount} and #{maxAmount} and deal.area Between #{minSize} and #{maxSize}
+		order by ${ordering} ${orderBy}
+		limit #{limit} offset #{offset}
+	</select>
+
+	<select id="boardListSearchWord" parameterType="Map" resultType="HouseDeal">
+		SELECT dong.dong_name as dong, name as aptName, deal.code as code, dealAmount, buildYear, dealYear, dealMonth, dealDay, area, floor, apart.jibun as jibun, type
+		FROM deal, apart, dong, deal_detail
+		WHERE deal.apart_code = apart.code AND dong.dong_code = apart.dong_code and deal.code = deal_detail.code 
+		and deal_detail.dealAmount Between #{minAmount} and #{maxAmount} and deal.area Between #{minSize} and #{maxSize}
+		and ${searchColumn} like CONCAT('%', #{searchWord}, '%')
+		order by ${ordering} ${orderBy}
+		limit #{limit} offset #{offset}
+	</select>
+	
+	<select id="boardListTotalCnt" parameterType="Map" resultType="int">
+		select count(*) 
+		from deal, deal_detail
+		where deal.code = deal_detail.code and deal_detail.dealAmount Between #{minAmount} and #{maxAmount} and deal.area Between #{minSize} and #{maxSize}
+	</select>
+	
+	<select id="boardListSearchWordTotalCnt" parameterType="Map" resultType="int">
+		select count(*)
+		from deal, apart, dong, deal_detail
+		where deal.code = deal_detail.code and deal.apart_code = apart.code and apart.dong_code = dong.dong_code and ${searchColumn} like concat('%', #{searchWord}, '%')
+		and deal_detail.dealAmount Between #{minAmount} and #{maxAmount} and deal.area Between #{minSize} and #{maxSize}
+	</select>
+	
+	<select id="getLocation" parameterType="Map" resultType="Location">
+		select lat, lng
+		from apart, deal 
+		where deal.apart_code = apart.code and name like #{aptName} and deal.code = #{code}
+	</select>
+	
+	<insert id="interestRegister" parameterType="Map">
+		insert into interest(member_code, gu_code, dong_code)
+		values(#{memberCode}, #{guCode}, #{dongCode})
+	</insert>
+	
+	<select id="getInterests" parameterType="int" resultType="Dong">
+		select dong_name, dong.dong_code, gu.gu_name as gu_name
+		from interest, gu, dong
+		where member_code = #{keyId} and gu.gu_code = interest.gu_code and dong.dong_code = interest.dong_code
+	</select>
+	
+	<select id="getInterestList" parameterType="Map" resultType="HouseDeal">
+		SELECT dong.dong_name as dong, name as aptName, deal.code as code, dealAmount, buildYear, dealYear, dealMonth, dealDay, area, floor, apart.jibun as jibun, type
+		from dong, deal, deal_detail, apart
+		where dong.dong_code = apart.dong_code and deal_detail.code = deal.code and apart.code = deal.apart_code
+		 and dong.dong_code = #{dongCode}
+		 order by aptName
+		 limit #{limit} offset #{offset}
+	</select>
+	
+	<select id="getInterestCount" parameterType="int" resultType="int">
+		SELECT count(*)
+		from apart, deal, deal_detail, dong
+		where apart.code = deal.apart_code and apart.dong_code = #{dongCode} and dong.dong_code = apart.dong_code and deal_detail.code = deal.code
+	</select>
+	
+	
+	<delete id="deleteInterest" parameterType="Map">
+		delete from interest
+		where member_code = #{keyId} and dong_code = #{dongCode}
+	</delete>
+	
+	<select id="dongSelect" parameterType="int" resultType="Dong">
+		select dong_name, dong_code
+		from dong
+		where gu_code = #{guCode}
+	</select>
+	
+</mapper>

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN"    "http://mybatis.org/dtd/mybatis-3-config.dtd">
+
+<configuration>
+
+    <settings>
+        <setting name="callSettersOnNulls" value="true"/>
+        <setting name="mapUnderscoreToCamelCase" value="true"/>
+        <setting name="cacheEnabled" value="false"/>
+    </settings>
+    
+    <typeAliases>
+        <package name="com.ssafy.happyhouse.dto"/>
+        <package name="com.ssafy.happyhouse.dto.board"/>
+    </typeAliases>  
+     
+    <mappers>
+    	<mapper resource="mapper/houseMapper.xml"></mapper>
+    	<mapper resource="mapper/memberMapper.xml"></mapper>
+    	<mapper resource="mapper/profileMapper.xml"></mapper>
+    	<mapper resource="mapper/boardMapper.xml"></mapper>
+    </mappers>
+    
+</configuration>

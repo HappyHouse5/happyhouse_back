@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd"> 
+
+<mapper namespace="com.ssafy.happyhouse.dao.MemberDao">
+
+	<select id="idEmailCheck" parameterType="Member" resultType="Member">
+		select id as userId, email
+		from member
+		where id like #{userId} or email like #{email}
+	</select>
+
+	<insert id="register" parameterType="Member" useGeneratedKeys="true" keyColumn="code" keyProperty="keyId">
+		insert into member(id, pw, email, mname, reg_date, phone, location_code, prefer)
+		values(#{userId}, #{pw}, #{email}, #{name}, now(), #{phone}, #{locationCode}, #{prefer})
+	</insert>
+	
+
+	<select id="login" parameterType="Member" resultMap="memberLogin">
+		select member.code as code, id, pw, mname, phone, email, location_code, IFNULL(fileURL, "0") as fileURL, prefer
+		from member left outer join profile_image
+		on member.code = profile_image.code
+		where id like #{userId} and pw like #{pw}
+	</select>
+	
+	
+	<delete id="deleteMember" parameterType="Member">
+		delete from member
+		where id like #{userId} and pw like #{pw}
+	</delete>
+	
+	<update id="setMemberInfo" parameterType="Member">
+		update member
+		set mname = #{name}, pw = #{pw}, phone = #{phone}, email = #{email}, location_code = #{locationCode}, prefer = #{prefer}
+		where id = #{userId}
+	</update>
+	
+	<select id="checkId" parameterType="String" resultType="int">
+		select count(*)
+		from member
+		where id = #{userId}
+	</select>
+	
+	<resultMap type="Member" id="memberLogin">
+		<result column="code" property="keyId"/>
+		<result column="id" property="userId"/>
+		<result column="pw" property="pw"/>
+		<result column="mname" property="name"/>
+		<result column="phone" property="phone"/>
+		<result column="email" property="email"/>
+		<result column="location_code" property="locationCode"/>
+		<result column="fileURL" property="fileURL"/>
+		<result column="prefer" property="prefer"/>
+	</resultMap>
+	
+	
+
+	
+</mapper>

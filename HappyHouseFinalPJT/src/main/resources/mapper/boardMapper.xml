@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd"> 
+<mapper namespace="com.ssafy.happyhouse.dao.BoardDao">
+
+	<insert id="boardInsert" parameterType="Board" useGeneratedKeys="true" keyProperty="boardId">
+		INSERT INTO BOARD ( member_code, TITLE, CONTENT, REG_DT, READ_COUNT )
+		            VALUES ( #{userSeq}, #{title}, #{content}, now(), 0 )
+	</insert>
+	
+	<insert id="boardFileInsert" parameterType="BoardFile">
+		INSERT INTO BOARD_FILE ( BOARD_ID, FILE_NAME, FILE_SIZE, FILE_CONTENT_TYPE, FILE_URL )
+		            VALUES ( #{boardId}, #{fileName}, #{fileSize}, #{fileContentType}, #{fileUrl} )
+	</insert>
+	
+	<!-- reg_dt : LocalDateTime, check out BoardDto setter  -->
+	<select id="boardList" parameterType="map" resultType="Board">
+		SELECT b.BOARD_ID, b.member_code as USER_SEQ, u.mname as USER_NAME,  
+		  	   b.TITLE, b.CONTENT, b.REG_DT, b.READ_COUNT
+		  FROM BOARD b, member u
+		 WHERE b.member_code = u.code
+		 ORDER BY b.BOARD_ID DESC
+		 LIMIT #{limit} OFFSET #{offset}
+	</select>
+	
+	<select id="boardListTotalCount" resultType="int">
+		SELECT COUNT(*) FROM BOARD
+	</select>
+	
+	<select id="boardListSearchWord" parameterType="map" resultType="Board">
+		SELECT b.BOARD_ID, b.member_code as USER_SEQ, u.mname as USER_NAME, 
+		  	   b.TITLE, b.CONTENT, b.REG_DT, b.READ_COUNT
+		  FROM BOARD b, member u
+		  WHERE b.member_code = u.code
+		    AND b.TITLE LIKE CONCAT('%', #{searchWord} ,'%')
+		  ORDER BY b.BOARD_ID DESC
+		  LIMIT #{limit} OFFSET #{offset}
+	</select>
+	
+	<select id="boardListSearchWordTotalCount" parameterType="string" resultType="int">
+		SELECT COUNT(*)
+		  FROM BOARD
+		 WHERE TITLE LIKE CONCAT('%', #{searchWord} ,'%')
+	</select>
+	
+	<update id="boardUpdate" parameterType="Board">
+		UPDATE BOARD
+		   SET TITLE = #{title},
+		   CONTENT   = #{content}
+		 WHERE BOARD_ID = #{boardId}
+	</update>
+	
+	<delete id="boardDelete" parameterType="int">
+		DELETE FROM BOARD WHERE BOARD_ID = #{boardId}
+	</delete>
+	
+	<delete id="boardFileDelete" parameterType="int">
+		DELETE FROM BOARD_FILE WHERE BOARD_ID = #{boardId}
+	</delete>
+	
+	<select id="boardFileUrlDeleteList" parameterType="int" resultType="string">
+		SELECT FILE_URL FROM BOARD_FILE WHERE BOARD_ID = #{boardId}
+	</select>
+
+	<select id="boardDetail" parameterType="int" resultType="Board">
+		SELECT b.BOARD_ID, b.member_code as USER_SEQ, u.mname as USER_NAME, 
+			   b.TITLE, b.CONTENT, b.REG_DT, b.READ_COUNT
+		  FROM BOARD b, member u
+		 WHERE b.BOARD_ID = #{boardId}
+		   AND b.member_code = u.code
+	</select>
+	
+	<select id="boardDetailFileList" parameterType="int" resultType="BoardFile">
+		SELECT BOARD_ID, FILE_ID, FILE_NAME, FILE_SIZE, FILE_CONTENT_TYPE, 
+		       FILE_URL, REG_DT
+		  FROM BOARD_FILE
+		 WHERE BOARD_ID = #{boardId}
+	</select>
+	
+	<!-- Dao use Dto -->
+	<select id="boardUserReadCount" parameterType="map" resultType="int">
+		SELECT count(*) FROM board_user_read WHERE board_id = #{boardId} and member_code = #{userSeq}
+	</select>
+	
+	<!-- Dao use @param -->
+	<insert id="boardUserReadInsert" parameterType="map">
+		INSERT INTO board_user_read ( board_id, member_code )
+		            VALUES ( #{boardId}, #{userSeq} )
+	</insert>
+	
+	<update id="boardReadCountUpdate" parameterType="int">
+		UPDATE board set READ_COUNT = READ_COUNT + 1
+		 WHERE BOARD_ID = #{boardId}
+	</update>
+	
+	<update id="boardReadCountDelete" parameterType="int">
+		DELETE FROM board_user_read WHERE BOARD_ID = #{boardId}
+	</update>
+	
+</mapper>
+
+
+
+
+
+

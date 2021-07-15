@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd"> 
+
+<mapper namespace="com.ssafy.happyhouse.dao.ProfileDao">
+
+	<insert id="insert" parameterType="Profile">
+		insert into profile_image(code, filename, filesize, fileURL, content_type)
+		values(#{profileId}, #{fileName}, #{fileSize}, #{fileURL}, #{fileContentType})
+	</insert>
+
+	<select id="getDeleteProfile" parameterType="int" resultType="String">
+		select fileURL
+		from profile_image
+		where code = #{keyId}
+	</select>
+	
+	<delete id="deleteProfile" parameterType="int">
+		delete from profile_image
+		where code = #{keyId}
+	</delete>
+
+	<update id="profileUpdate" parameterType="Profile">
+		update profile_image
+		set filename = #{fileName}, filesize = #{fileSize}, fileURL = #{fileURL}, content_type = #{fileContentType}
+		where code = #{profileId}
+	</update>
+	
+	<select id="isExist" parameterType="int" resultType="int">
+		select count(*)
+		from profile_image
+		where code = #{keyId};
+	</select>
+	
+	<select id="getProfileImage" parameterType="int" resultType="String">
+		select fileURL
+		from profile_image
+		where code = #{member_code}
+	</select>
+	
+	<select id="getProfile" parameterType="int" resultMap="getProfile">
+		select code, filename, filesize, fileURL, content_type
+		from profile_image
+		where code = #{code}
+	</select>
+	
+	<resultMap type="Profile" id="getProfile">
+		<result column="code" property="profileId"/>
+		<result column="filename" property="fileName"/>
+		<result column="filesize" property="fileSize"/>
+		<result column="fileURL" property="fileURL"/>
+		<result column="content_type" property="fileContentType"/>
+	</resultMap>
+	
+	
+</mapper>
